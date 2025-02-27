@@ -9,6 +9,7 @@ func IsAdminMiddleware(key string) gin.HandlerFunc {
 		authorization := c.GetHeader("Authorization")
 		if authorization != key {
 			c.String(401, "Unauthorized")
+			c.Abort()
 			return
 		}
 		c.Next()

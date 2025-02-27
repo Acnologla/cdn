@@ -6,12 +6,12 @@ import (
 )
 
 type UploadRequest struct {
-	URL  string `json:"url"`
-	Path string `json:"path"`
+	URL  string `json:"url" binding:"required"`
+	Path string `json:"path" binding:"required"`
 }
 
 type ContentController struct {
-	ContentService service.Content
+	ContentService *service.Content
 }
 
 func (controller *ContentController) Upload(c *gin.Context) {
@@ -21,13 +21,16 @@ func (controller *ContentController) Upload(c *gin.Context) {
 		return
 	}
 
-	controller.ContentService.Upload(c.Request.Context(), request.URL, request.Path)
+	resultURL, err := controller.ContentService.Upload(c.Request.Context(), request.URL, request.Path)
+	if err != nil {
+		c.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
 
-	// return the result url
-	c.JSON(200, gin.H{"message": "File uploaded"})
+	c.JSON(200, gin.H{"url": resultURL})
 }
 
-func NewContentController(contentService service.Content) *ContentController {
+func NewContentController(contentService *service.Content) *ContentController {
 	return &ContentController{
 		ContentService: contentService,
 	}

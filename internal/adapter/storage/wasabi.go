@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"io"
+	"strings"
 
 	"github.com/Acnologla/cdn/internal/adapter/config"
 	"github.com/Acnologla/cdn/internal/core/port"
@@ -41,9 +42,11 @@ func (w *Wasabi) Get(ctx context.Context, key string) ([]byte, error) {
 	return buf.Bytes(), err
 }
 
-func New(ctx context.Context, config config.WasabiConfig) port.Storage {
+func NewWasabiStorage(ctx context.Context, config config.WasabiConfig) port.Storage {
+	region := strings.Split(config.Endpoint, ".")[1]
 	sess, err := session.NewSession(&aws.Config{
-		Region:      &config.Region,
+		Endpoint:    &config.Endpoint,
+		Region:      &region,
 		Credentials: credentials.NewStaticCredentials(config.AccessKey, config.SecretKey, ""),
 	})
 	if err != nil {

@@ -15,5 +15,5 @@ func CreateAndServe(c config.HTTPConfig, content *controllers.ContentController)
 	contentController.Use(middlewares.IsAdminMiddleware(c.AdminKey))
 	contentController.POST("/upload", content.Upload)
 
-	return r.Run(fmt.Sprintf(":%d", c.Port))
+	return r.Run(fmt.Sprintf(":%s", c.Port))
 }

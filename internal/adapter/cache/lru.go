@@ -25,8 +25,8 @@ func (c *Cache) Clear() {
 	c.cache.Purge()
 }
 
-func New() port.Cache {
-	l, _ := lru.New[string, []byte](512)
+func NewLRUCache(max int) port.Cache {
+	l, _ := lru.New[string, []byte](max)
 	return &Cache{
 		cache: l,
 	}

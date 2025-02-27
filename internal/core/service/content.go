@@ -19,11 +19,21 @@ func (c *Content) Upload(ctx context.Context, url, path string) (string, error) 
 	if err != nil {
 		return "", err
 	}
-	err = c.storage.Upload(ctx, path, reader)
+	split := strings.Split(url, ".")
+	fileType := split[len(split)-1]
+	filePath := fmt.Sprintf("%s.%s", path, fileType)
+	err = c.storage.Upload(ctx, filePath, reader)
 	if err != nil {
 		return "", err
 	}
 
-	fileType := strings.Split(url, ".")[1]
-	return fmt.Sprintf("%s/%s.%s", c.cdnURL, path, fileType), nil
+	return fmt.Sprintf("%s/%s", c.cdnURL, filePath), nil
+}
+
+func NewContentService(storage port.Storage, httpClient port.HttpClient, cdnURL string) *Content {
+	return &Content{
+		storage:    storage,
+		httpClient: httpClient,
+		cdnURL:     cdnURL,
+	}
 }
