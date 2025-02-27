@@ -18,16 +18,19 @@ type (
 		AdminKey  string
 		Port      string
 		ServerURL string
+		Secure    bool
 	}
 
 	Config struct {
 		WasabiConfig WasabiConfig
 		HTTPConfig   HTTPConfig
+		Production   bool
 	}
 )
 
 func LoadConfig() (*Config, error) {
-	if os.Getenv("PRODUCTION") != "TRUE" {
+	isProduction := os.Getenv("PRODUCTION") == "TRUE"
+	if isProduction {
 		err := godotenv.Load()
 		if err != nil {
 			return nil, err
@@ -44,10 +47,12 @@ func LoadConfig() (*Config, error) {
 		AdminKey:  os.Getenv("ADMIN_KEY"),
 		Port:      os.Getenv("PORT"),
 		ServerURL: os.Getenv("SERVER_URL"),
+		Secure:    isProduction,
 	}
 
 	return &Config{
 		WasabiConfig: WasabiConfig,
 		HTTPConfig:   HTTPConfig,
+		Production:   isProduction,
 	}, nil
 }

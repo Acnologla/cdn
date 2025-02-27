@@ -17,7 +17,7 @@ func (controller *ContentController) Get(c *gin.Context) {
 	}
 	file, err := controller.ContentService.Get(c.Request.Context(), relativePath)
 	if err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+		c.String(404, "File not found")
 		return
 	}
 

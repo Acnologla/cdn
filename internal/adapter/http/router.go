@@ -19,6 +19,8 @@ func CreateAndServe(c config.HTTPConfig, content *controllers.ContentController,
 
 	//public routes for getting files
 	r.GET("/cdn/*path", content.Get)
-
+	if c.Secure {
+		return r.RunTLS(":443", "cert.pem", "key.pem")
+	}
 	return r.Run(fmt.Sprintf(":%s", c.Port))
 }
