@@ -12,5 +12,6 @@ FROM alpine
 WORKDIR /usr/app
 
 COPY --from=builder /build/main /usr/app
+ENV PRODUCTION=TRUE
 
 ENTRYPOINT ./main 
