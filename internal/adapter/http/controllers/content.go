@@ -5,29 +5,23 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UploadRequest struct {
-	URL  string `json:"url" binding:"required"`
-	Path string `json:"path" binding:"required"`
-}
-
 type ContentController struct {
 	ContentService *service.Content
 }
 
-func (controller *ContentController) Upload(c *gin.Context) {
-	var request UploadRequest
-	if err := c.ShouldBindJSON(&request); err != nil {
-		c.JSON(400, gin.H{"error": err.Error()})
+func (controller *ContentController) Get(c *gin.Context) {
+	relativePath := c.Param("path")
+	if relativePath == "" {
+		c.JSON(400, gin.H{"error": "path is required"})
 		return
 	}
-
-	resultURL, err := controller.ContentService.Upload(c.Request.Context(), request.URL, request.Path)
+	file, err := controller.ContentService.Get(c.Request.Context(), relativePath)
 	if err != nil {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(200, gin.H{"url": resultURL})
+	c.Data(200, file.ContentType, file.Content)
 }
 
 func NewContentController(contentService *service.Content) *ContentController {

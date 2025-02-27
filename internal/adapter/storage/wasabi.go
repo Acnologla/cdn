@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/Acnologla/cdn/internal/adapter/config"
+	"github.com/Acnologla/cdn/internal/core/domain"
 	"github.com/Acnologla/cdn/internal/core/port"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -20,26 +21,39 @@ type Wasabi struct {
 	bucket  string
 }
 
-func (w *Wasabi) Upload(ctx context.Context, key string, seeker io.ReadSeeker) error {
+func (w *Wasabi) Upload(ctx context.Context, key string, seeker io.ReadSeeker, contentType string) error {
 	_, err := w.client.PutObject(&s3.PutObjectInput{
-		Bucket: aws.String(w.bucket),
-		Key:    aws.String(key),
-		Body:   seeker,
+		Bucket:      aws.String(w.bucket),
+		Key:         aws.String(key),
+		Body:        seeker,
+		ContentType: aws.String(contentType),
 	})
 	return err
 }
 
-func (w *Wasabi) Get(ctx context.Context, key string) ([]byte, error) {
+func (w *Wasabi) Get(ctx context.Context, key string) (*domain.File, error) {
 	downloader := s3manager.NewDownloader(w.session)
 	buf := aws.NewWriteAtBuffer([]byte{})
 
-	_, err := downloader.Download(buf,
+	metadata, err := w.client.HeadObject(&s3.HeadObjectInput{
+		Bucket: aws.String(w.bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	_, err = downloader.Download(buf,
 		&s3.GetObjectInput{
 			Bucket: aws.String(w.bucket),
 			Key:    aws.String(key),
 		})
 
-	return buf.Bytes(), err
+	if err != nil {
+		return nil, err
+	}
+
+	return domain.NewFile(*metadata.ContentType, buf.Bytes()), nil
 }
 
 func NewWasabiStorage(ctx context.Context, config config.WasabiConfig) port.Storage {

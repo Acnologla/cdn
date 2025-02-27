@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/Acnologla/cdn/internal/adapter/cache"
 	"github.com/Acnologla/cdn/internal/adapter/config"
 	"github.com/Acnologla/cdn/internal/adapter/http"
 	"github.com/Acnologla/cdn/internal/adapter/http/controllers"
@@ -21,20 +22,20 @@ func main() {
 	// initialize adapters
 
 	storageAdapter := storage.NewWasabiStorage(context, config.WasabiConfig)
-	//cacheAdapter := cache.NewLRUCache(512)
+	cacheAdapter := cache.NewLRUCache(512)
 	httpClientAdapter := httpclient.NewHttpClient()
 
 	// initialize services
 
-	contentService := service.NewContentService(storageAdapter, httpClientAdapter, config.HTTPConfig.ServerURL)
+	contentService := service.NewContentService(storageAdapter, httpClientAdapter, cacheAdapter, config.HTTPConfig.ServerURL)
 
 	//initialize controllers
 
 	contentController := controllers.NewContentController(contentService)
-
+	contentManagementControlller := controllers.NewContentManagementController(contentService)
 	// initialize http server
 
-	err = http.CreateAndServe(config.HTTPConfig, contentController)
+	err = http.CreateAndServe(config.HTTPConfig, contentController, contentManagementControlller)
 	if err != nil {
 		panic(err)
 	}

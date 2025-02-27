@@ -2,9 +2,9 @@ package port
 
 import (
 	"context"
-	"io"
+	"net/http"
 )
 
 type HttpClient interface {
-	Get(ctx context.Context, url string) (io.ReadSeeker, error)
+	Get(ctx context.Context, url string) (*http.Response, error)
 }

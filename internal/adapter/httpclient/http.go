@@ -1,10 +1,8 @@
 package httpclient
 
 import (
-	"bytes"
 	"context"
 	"errors"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -18,7 +16,7 @@ func (h *HttpClient) IsUrl(str string) bool {
 	return err == nil && u.Scheme != "" && u.Host != ""
 }
 
-func (h *HttpClient) Get(ctx context.Context, url string) (io.ReadSeeker, error) {
+func (h *HttpClient) Get(ctx context.Context, url string) (*http.Response, error) {
 	if !h.IsUrl(url) {
 		return nil, errors.New("invalid url")
 	}
@@ -30,12 +28,8 @@ func (h *HttpClient) Get(ctx context.Context, url string) (io.ReadSeeker, error)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
-	byteSlice, err := io.ReadAll(response.Body)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewReader(byteSlice), nil
+
+	return response, nil
 }
 
 func NewHttpClient() port.HttpClient {
