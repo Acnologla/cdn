@@ -10,10 +10,11 @@ type ContentController struct {
 }
 
 func (controller *ContentController) Upload(c *gin.Context) {
+	// upload file from an urll in req.body.url
 
 }
 
-func New(contentService port.ContentService) *ContentController {
+func NewContentController(contentService port.ContentService) *ContentController {
 	return &ContentController{
 		ContentService: contentService,
 	}
