@@ -1,0 +1,23 @@
+version: 2.1
+jobs:
+  Build-and-deploy:
+    docker:
+      - image: jdrouet/docker-with-buildx:stable
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: docker run --privileged --rm tonistiigi/binfmt --install all
+      - run:
+          name: Docker build and deploy
+          command: |
+            echo "$GITLABPASSWORD" | docker login registry.gitlab.com --username acnologla --password-stdin
+            docker buildx build --platform linux/arm64/v8 --tag registry.gitlab.com/acnologla/cdn --push .
+
+workflows:
+  version: 2
+  test_and_build:
+    jobs:
+      - Build-and-deploy:
+          filters:
+            branches:
+              only: main
