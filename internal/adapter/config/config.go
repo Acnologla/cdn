@@ -30,7 +30,7 @@ type (
 
 func LoadConfig() (*Config, error) {
 	isProduction := os.Getenv("PRODUCTION") == "TRUE"
-	if isProduction {
+	if !isProduction {
 		err := godotenv.Load()
 		if err != nil {
 			return nil, err
