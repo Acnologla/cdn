@@ -47,7 +47,7 @@ func LoadConfig() (*Config, error) {
 		AdminKey:  os.Getenv("ADMIN_KEY"),
 		Port:      os.Getenv("PORT"),
 		ServerURL: os.Getenv("SERVER_URL"),
-		Secure:    isProduction,
+		Secure:    isProduction && os.Getenv("SECURE") == "TRUE",
 	}
 
 	return &Config{
